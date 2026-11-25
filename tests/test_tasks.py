@@ -41,4 +41,24 @@ def test_list_tasks_filter_by_done(client, done, expected_count):
   assert response.status_code == 200
   assert len(response.json()) == expected_count
 
-  # New add
+
+def test_delete_completed_tasks(client):
+    alice = register_and_login(client, "alice@example.com", "qwerty123")
+    bob = register_and_login(client, "bob@example.com", "qwerty123")
+
+    client.post("/tasks", json={"title": "Активная задача", "done": False}, headers=alice)
+    client.post("/tasks", json={"title": "Выполненная 1", "done": True}, headers=alice)
+    client.post("/tasks", json={"title": "Выполненная 2", "done": True}, headers=alice)
+    client.post("/tasks", json={"title": "Выполненная задача Боба", "done": True}, headers=bob)
+
+    response = client.delete("/tasks/completed", headers=alice)
+    assert response.status_code == 200
+    assert response.json() == {"deleted_count": 2}
+
+    alice_remaining = client.get("/tasks", headers=alice).json()
+    assert len(alice_remaining) == 1
+    assert alice_remaining[0]["title"] == "Активная задача"
+
+    bob_remaining = client.get("/tasks", headers=bob).json()
+    assert len(bob_remaining) == 1
+    assert bob_remaining[0]["title"] == "Выполненная задача Боба"

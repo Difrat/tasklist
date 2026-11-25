@@ -35,4 +35,10 @@ class TaskService:
   def delete(self, task_id: int, user_id: int) -> None:
       task = self.get_or_404(task_id, user_id)
       self.repo.delete(task)
+
+
+  def delete_completed(self, user_id: int) -> int:
+      return self.repo.delete_completed(user_id)
+
+
  
