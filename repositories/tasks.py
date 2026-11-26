@@ -35,3 +35,15 @@ class TaskRepository:
   def delete(self, task: models.Task) -> None:
       self.db.delete(task)
       self.db.commit()
+
+  def delete_completed(self, user_id: int) -> int:
+        deleted_count = (
+            self.db.query(models.Task)
+            .filter(
+                models.Task.owner_id == user_id,
+                models.Task.done.is_(True),
+            )
+            .delete(synchronize_session=False)
+        )
+        self.db.commit()
+        return deleted_count

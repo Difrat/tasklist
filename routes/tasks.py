@@ -58,7 +58,15 @@ def update_task(
 ):
   return service.update(task_id, payload, current_user.id)
  
- 
+@router.delete("/completed", status_code=200)
+def delete_completed(
+  service:TaskService = Depends(get_task_service),
+  current_user: models.User = Depends(get_current_user),
+):
+  deleted_count = service.delete_completed(current_user.id)
+  
+  return {"deleted_count": deleted_count}
+
 @router.delete("/{task_id}", status_code=204)
 def delete_task(
   task_id: int,
