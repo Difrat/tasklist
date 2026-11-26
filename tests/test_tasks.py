@@ -62,3 +62,26 @@ def test_delete_completed_tasks(client):
     bob_remaining = client.get("/tasks", headers=bob).json()
     assert len(bob_remaining) == 1
     assert bob_remaining[0]["title"] == "Выполненная задача Боба"
+
+def test_list_tasks_pagination(client):
+    headers = register_and_login(client, "alice@example.com", "qwerty123")
+    for i in range(1, 6):
+        client.post("/tasks", json={"title": f"Задача {i}", "done": False}, headers=headers)
+
+    page_1 = client.get("/tasks", params={"limit": 2, "offset": 0}, headers=headers)
+    assert page_1.status_code == 200
+    assert [t["title"] for t in page_1.json()] == ["Задача 1", "Задача 2"]
+
+    page_2 = client.get("/tasks", params={"limit": 2, "offset": 2}, headers=headers)
+    assert page_2.status_code == 200
+    assert [t["title"] for t in page_2.json()] == ["Задача 3", "Задача 4"]
+
+    page_3 = client.get("/tasks", params={"limit": 2, "offset": 4}, headers=headers)
+    assert page_3.status_code == 200
+    assert [t["title"] for t in page_3.json()] == ["Задача 5"]
+
+
+def test_list_tasks_pagination_validation(client):
+    headers = register_and_login(client, "alice@example.com", "qwerty123")
+    response = client.get("/tasks", params={"limit": 0, "offset": -1}, headers=headers)
+    assert response.status_code == 422

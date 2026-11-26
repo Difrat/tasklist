@@ -8,8 +8,8 @@ class TaskService:
   def __init__(self, repo: TaskRepository):
       self.repo = repo
  
-  def list(self, user_id: int, done: bool | None, limit: int):
-      return self.repo.list(user_id=user_id, done=done, limit=limit)
+  def list(self, user_id: int, done: bool | None, limit: int, offset: int = 0,):
+      return self.repo.list(user_id=user_id, done=done, limit=limit, offset=offset)
  
   def get_or_404(self, task_id: int, user_id: int):
       task = self.repo.get_by_id(task_id, user_id)
