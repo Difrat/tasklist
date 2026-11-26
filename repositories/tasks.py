@@ -7,11 +7,11 @@ class TaskRepository:
   def __init__(self, db: Session):
       self.db = db
  
-  def list(self, user_id: int, done: bool | None, limit: int) -> list[models.Task]:
+  def list(self, user_id: int, done: bool | None, limit: int, offset: int = 0,) -> list[models.Task]:
     query = self.db.query(models.Task).filter(models.Task.owner_id == user_id)
     if done is not None:
         query = query.filter(models.Task.done == done)
-    return query.limit(limit).all()
+    return query.order_by(models.Task.id).offset(offset).limit(limit).all()
  
   def get_by_id(self, task_id: int, user_id: int) -> models.Task | None:
     return (
